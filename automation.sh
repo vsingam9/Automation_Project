@@ -67,3 +67,42 @@ if [ $(dpkg --list | grep awscli | cut -d ' ' -f 3 | head -1) == 'awscli' ]
 	s3://${s3_bucket}/${myname}-httpd-logs-${timestamp}.tar
 
 fi
+
+
+# 4 - Updating the Inventory file with the latest log backup.
+
+
+if [ -f "/var/www/html/inventory.html" ]; 
+then
+	
+	printf "<p>" >> /var/www/html/inventory.html
+	printf "\n\t$(ls -lrth /tmp | grep httpd | cut -d ' ' -f 10 | cut -d '-' -f 2,3 | tail -1)" >> /var/www/html/inventory.html
+	printf "\t\t$(ls -lrth /tmp | grep httpd | cut -d ' ' -f 10 | cut -d '-' -f 4,5 | cut -d '.' -f 1 | tail -1)" >> /var/www/html/inventory.html
+	printf "\t\t\t $(ls -lrth /tmp | grep httpd | cut -d ' ' -f 10 | cut -d '-' -f 4,5 | cut -d '.' -f 2 | tail -1 )" >> /var/www/html/inventory.html
+	printf "\t\t\t\t$(ls -lrth /tmp/ | grep httpd | cut -d ' ' -f 6 | tail -1)" >> /var/www/html/inventory.html
+	printf "</p>" >> /var/www/html/inventory.html
+	
+else 
+	touch /var/www/html/inventory.html
+	printf "<p>" >> /var/www/html/inventory.html
+	printf "\tLog-Type\tDate-Created\tType\tSize" >> /var/www/html/inventory.html
+	printf "</p>" >> /var/www/html/inventory.html
+	printf "<p>" >> /var/www/html/inventory.html
+	printf "\n\t$(ls -lrth /tmp | grep httpd | cut -d ' ' -f 10 | cut -d '-' -f 2,3 | tail -1)" >> /var/www/html/inventory.html
+	printf "\t\t$(ls -lrth /tmp | grep httpd | cut -d ' ' -f 10 | cut -d '-' -f 4,5 | cut -d '.' -f 1 | tail -1)" >> /var/www/html/inventory.html
+	printf "\t\t\t $(ls -lrth /tmp | grep httpd | cut -d ' ' -f 10 | cut -d '-' -f 4,5 | cut -d '.' -f 2 | tail -1)" >> /var/www/html/inventory.html
+	printf "\t\t\t\t$(ls -lrth /tmp/ | grep httpd | cut -d ' ' -f 6 |tail -1)" >> /var/www/html/inventory.html
+	printf "</p>" >> /var/www/html/inventory.html
+	
+fi
+
+
+# 5 - Scheduling cronjob for Daily running of automation script
+
+if [ -f "/etc/cron.d/automation" ];
+then
+	echo "Automation script in place for Daily 00:00 hrs"
+else
+	touch /etc/cron.d/automation
+	printf "0 0 * * * root /root/Automation_Project/auotmation.sh" > /etc/cron.d/automation
+fi
